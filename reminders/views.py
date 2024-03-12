@@ -1,18 +1,24 @@
-# from django.shortcuts import render
-# Create your views here.
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import json
-from .dboperation import get_reminders_db ,upsert_reminder_db
+from .dboperation import get_reminders_db, upsert_reminder_db
 
 @api_view(['GET'])
 def get_reminders(request):
-    """_summary_
-        This is the reminders retrieval API.
+    """
+    Retrieves reminders from the database.
+
+    This endpoint retrieves all reminders stored in the database and returns them as a JSON response.
+
+    Returns:
+    - status: Indicates the success or failure of the operation (1 for success, 0 for failure).
+    - statusCode: HTTP status code of the response (200 for success, 400 for failure).
+    - error: Any error message encountered during the operation (None if successful).
+    - message: Descriptive message indicating the outcome of the operation.
+    - data: List of reminders retrieved from the database.
     """
     response_body = {"status": 1, "statusCode": 200, 'error' : None, "message": "Data Fetched Successfully", 'data' : None}
     try:
-        # Assuming get_reminders_db returns reminders data
         res = get_reminders_db()
 
         if res is not None and len(res) > 0:
@@ -32,8 +38,25 @@ def get_reminders(request):
 
 @api_view(['POST'])
 def upsert_reminder(request):
-    """_summary_
-        This is the reminder upsert API.
+    """
+    Adds or updates a reminder in the database.
+
+    This endpoint accepts a JSON payload containing reminder details and adds or updates the reminder in the database accordingly.
+
+    Parameters:
+    - id: Identifier of the reminder (optional for new reminders, required for updates).
+    - date: Date of the reminder.
+    - time: Time of the reminder.
+    - message: Text message of the reminder.
+    - reminder_type: Type of reminder (e.g., SMS, Email).
+    - added_by: Identifier of the user who added the reminder.
+
+    Returns:
+    - status: Indicates the success or failure of the operation (1 for success, 0 for failure).
+    - statusCode: HTTP status code of the response (200 for success, 400 for failure).
+    - error: Any error message encountered during the operation (None if successful).
+    - message: Descriptive message indicating the outcome of the operation.
+    - data: Additional data related to the operation (e.g., identifier of the added or updated reminder).
     """
     response_body = {"status": 1, "statusCode": 200, 'error': None, "message": "Reminder Updated Successfully", 'data': None}
     try:
@@ -45,7 +68,6 @@ def upsert_reminder(request):
         _reminder_type = data['reminder_type']
         _added_by = data['added_by']
 
-        # Call the upsert function
         reminder_id = upsert_reminder_db(_id, _date, _time, _message, _reminder_type, _added_by)
 
         response_body['data'] = {"id": reminder_id}
@@ -57,4 +79,3 @@ def upsert_reminder(request):
         response_body['message'] = 'Something went wrong.'
 
     return Response(response_body, status=response_body['statusCode'])
-
